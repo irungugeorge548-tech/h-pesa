@@ -1,0 +1,224 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  phone     String   @unique
+  email     String   @unique
+  password  String
+  pin       String
+  role      String   @default("TENANT") // LANDLORD, TENANT, ADMIN
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  wallet    Wallet?
+  sentTransactions     Transaction[] @relation("SentTransactions")
+  receivedTransactions Transaction[] @relation("ReceivedTransactions")
+  properties           Property[]
+  tenancies            Tenancy[]
+  orders               Order[]
+  maintenanceRequests  MaintenanceRequest[]
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  balance   Float    @default(10000)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  reference   String   @unique @default(cuid())
+  type        String
+  amount      Float
+  fee         Float    @default(0)
+  description String?
+  status      String   @default("COMPLETED")
+  senderId    String
+  recipientId String?
+  sender      User     @relation("SentTransactions", fields: [senderId], references: [id])
+  recipient   User?    @relation("ReceivedTransactions", fields: [recipientId], references: [id])
+  // Added for the merchant API: lets partner apps retry safely without double charging
+  externalRef     String?
+  serviceClientId String?
+  createdAt   DateTime @default(now())
+
+  @@unique([serviceClientId, externalRef])
+}
+
+model Property {
+  id          String   @id @default(cuid())
+  name        String
+  location    String
+  description String?
+  landlordId  String
+  landlord    User     @relation(fields: [landlordId], references: [id])
+  units       Unit[]
+  createdAt   DateTime @default(now())
+}
+
+model Unit {
+  id          String   @id @default(cuid())
+  unitNumber  String
+  rentAmount  Float
+  status      String   @default("VACANT") // VACANT, OCCUPIED
+  propertyId  String
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  tenancy     Tenancy?
+  createdAt   DateTime @default(now())
+}
+
+model Tenancy {
+  id        String   @id @default(cuid())
+  unitId    String   @unique
+  tenantId  String
+  unit      Unit     @relation(fields: [unitId], references: [id])
+  tenant    User     @relation(fields: [tenantId], references: [id])
+  startDate DateTime @default(now())
+  dueDay    Int      @default(5)
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  price       Float
+  category    String
+  image       String?
+  stock       Int      @default(100)
+  createdAt   DateTime @default(now())
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  quantity  Int      @default(1)
+  createdAt DateTime @default(now())
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  userId    String
+  total     Float
+  status    String   @default("CONFIRMED")
+  items     String   // JSON string of items
+  user      User     @relation(fields: [userId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model MaintenanceRequest {
+  id          String   @id @default(cuid())
+  tenantId    String
+  description String
+  status      String   @default("OPEN")
+  tenant      User     @relation(fields: [tenantId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+
+// ---------------------------------------------------------------------------
+// Ecosystem additions (all new tables; existing tables are untouched)
+// ---------------------------------------------------------------------------
+
+// A partner app (H-Fleet, H-Homes, H-Mart) that may charge users through the merchant API
+model ServiceClient {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  keyHash         String   @unique   // sha256 of the API key; the key itself is never stored
+  merchantUserId  String             // the H-Pesa account that receives this app's payments
+  allowRecipients Boolean  @default(false) // may pay out to a named recipient (H-Homes -> landlord)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+}
+
+// Chama: a savings group that rotates a payout (merry-go-round)
+model Chama {
+  id                 String   @id @default(cuid())
+  name               String
+  code               String   @unique
+  createdById        String
+  contributionAmount Float
+  frequency          String   @default("MONTHLY") // WEEKLY, MONTHLY
+  balance            Float    @default(0)         // pooled money held for the current cycle
+  currentCycle       Int      @default(1)         // also the payout position that is next
+  status             String   @default("FORMING") // FORMING, ACTIVE, COMPLETED
+  createdAt          DateTime @default(now())
+}
+
+model ChamaMember {
+  id       String   @id @default(cuid())
+  chamaId  String
+  userId   String
+  position Int      // order of payout
+  joinedAt DateTime @default(now())
+
+  @@unique([chamaId, userId])
+}
+
+model ChamaEntry {
+  id        String   @id @default(cuid())
+  chamaId   String
+  userId    String
+  type      String   // CONTRIBUTION, PAYOUT
+  amount    Float
+  cycle     Int
+  createdAt DateTime @default(now())
+
+  @@unique([chamaId, userId, type, cycle]) // one contribution per member per cycle
+}
+
+// A payment request / payment link (Pochi-style when reusable)
+model PaymentRequest {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  requesterId String
+  amount      Float?    // null = payer chooses the amount
+  note        String?
+  reusable    Boolean   @default(false)
+  status      String    @default("OPEN") // OPEN, PAID, CANCELLED
+  paidById    String?
+  paidAt      DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+// Standing orders: automatic payments the user authorised with their PIN
+model ScheduledPayment {
+  id             String    @id @default(cuid())
+  userId         String
+  kind           String    @default("SEND") // SEND, CHAMA
+  recipientPhone String?
+  chamaId        String?
+  amount         Float
+  frequency      String    // DAILY, WEEKLY, MONTHLY
+  note           String?
+  nextRunAt      DateTime
+  lastRunAt      DateTime?
+  lastStatus     String?
+  failCount      Int       @default(0)
+  active         Boolean   @default(true)
+  createdAt      DateTime  @default(now())
+}
+
+// Rewards ledger shared across the ecosystem; balance = sum of points
+model RewardEntry {
+  id          String   @id @default(cuid())
+  userId      String
+  points      Int      // positive = earned, negative = redeemed
+  source      String   // H-PESA, H-FLEET, H-HOMES, H-MART
+  reason      String
+  externalRef String?
+  createdAt   DateTime @default(now())
+
+  @@unique([source, externalRef])
+}

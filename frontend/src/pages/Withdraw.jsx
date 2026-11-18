@@ -1,0 +1,59 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+
+export default function Withdraw() {
+  const [agentNumber, setAgentNumber] = useState('')
+  const [amount, setAmount] = useState('')
+  const [pin, setPin] = useState('')
+  const [message, setMessage] = useState('')
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const token = localStorage.getItem('hpesa_token')
+      const res = await axios.post('/api/transactions/paybill', {
+        businessNumber: agentNumber,
+        accountNumber: 'WITHDRAW',
+        amount,
+        pin
+      }, { headers: { Authorization: `Bearer ${token}` } })
+      setMessage(`Withdrawal of KES ${amount} initiated. Agent: ${agentNumber}`)
+      setTimeout(() => navigate('/'), 1800)
+    } catch (err) {
+      setError(err.response?.data?.error || 'Failed')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-primary text-white p-4">
+        <div className="max-w-md mx-auto flex items-center">
+          <button onClick={() => navigate(-1)} className="mr-4 text-2xl">←</button>
+          <h1 className="text-xl font-bold">Withdraw Cash</h1>
+        </div>
+      </header>
+      <main className="max-w-md mx-auto p-4">
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow p-6 space-y-4">
+          {error && <div className="bg-red-100 text-red-700 p-3 rounded text-sm">{error}</div>}
+          {message && <div className="bg-green-100 text-green-700 p-3 rounded text-sm">{message}</div>}
+
+          <input type="text" placeholder="Agent Number" value={agentNumber} onChange={e => setAgentNumber(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
+          <input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
+          <input type="password" placeholder="PIN" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
+          
+          <button type="submit" disabled={loading} className="w-full bg-primary text-white py-3 rounded-xl font-semibold">
+            {loading ? 'Processing...' : 'Withdraw'}
+          </button>
+        </form>
+      </main>
+    </div>
+  )
+}

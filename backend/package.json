@@ -1,0 +1,28 @@
+{
+  "name": "h-pesa-backend",
+  "version": "1.0.0",
+  "description": "H-Pesa Backend API",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "nodemon src/index.js",
+    "start": "node src/index.js",
+    "db:push": "prisma db push",
+    "db:seed": "node prisma/seed.js",
+    "postinstall": "prisma generate",
+    "start:prod": "prisma db push --skip-generate && node prisma/seed.js && node src/index.js",
+    "test": "node test/run.js",
+    "smoke": "node scripts/smoke.js"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "prisma": "^5.22.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
