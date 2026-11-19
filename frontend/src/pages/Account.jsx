@@ -5,9 +5,9 @@ import { useT } from '../i18n'
 export default function Account({ user, logout }) {
   const { t, lang, setLang } = useT()
   const rows = [
-    { icon: 'user', title: 'Profile', sub: 'Name, phone and email' },
-    { icon: 'lock', title: 'PIN & Security', sub: 'Change your PIN' },
-    { icon: 'bell', title: 'Notifications', sub: 'Alerts and receipts' },
+    { icon: 'user', title: 'Profile', sub: 'Name, phone and email', to: '/account/profile' },
+    { icon: 'lock', title: 'PIN & Security', sub: 'Change your PIN', to: '/account/security' },
+    { icon: 'bell', title: 'Notifications', sub: 'Alerts and receipts', to: '/account/notifications' },
   ]
   return (
     <div className="h-screen flex flex-col bg-white">
@@ -22,11 +22,11 @@ export default function Account({ user, logout }) {
         </div>
         <div className="mt-6 space-y-3">
           {rows.map(r => (
-            <div key={r.title} className="flex items-center gap-4 border rounded-2xl p-4 shadow-sm">
+            <Link key={r.title} to={r.to} className="flex items-center gap-4 border rounded-2xl p-4 shadow-sm">
               <span className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Icon name={r.icon} size={22} /></span>
               <div className="flex-1"><p className="font-semibold">{t(r.title)}</p><p className="text-xs text-gray-500">{t(r.sub)}</p></div>
               <Icon name="chev" size={18} className="text-gray-400" />
-            </div>
+            </Link>
           ))}
           <div className="flex items-center gap-4 border rounded-2xl p-4 shadow-sm">
             <span className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Icon name="globe" size={22} /></span>

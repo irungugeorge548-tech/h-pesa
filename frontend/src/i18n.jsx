@@ -38,6 +38,13 @@ const SW = {
   'You earn 1 point for every KES 10 you spend with H-Pesa and partner apps.': 'Unapata pointi 1 kwa kila KES 10 unayotumia H-Pesa na programu washirika.',
   'Minimum': 'Kiwango cha chini', 'Welcome back': 'Karibu tena', 'Log in to your wallet': 'Ingia kwenye wallet yako', 'Phone number': 'Namba ya simu', 'Password': 'Nenosiri',
   'Log in': 'Ingia', 'Logging in…': 'Inaingia…', 'New here?': 'Mgeni?', 'Create account': 'Fungua akaunti',
+  'Saved': 'Imehifadhiwa', 'Save': 'Hifadhi', 'Full name': 'Jina kamili', 'Email': 'Barua pepe',
+  'Your phone number is your H-Pesa number and cannot be changed here.': 'Namba yako ya simu ndiyo namba yako ya H-Pesa na haiwezi kubadilishwa hapa.',
+  'Change PIN': 'Badilisha PIN', 'Change password': 'Badilisha nenosiri', 'Current PIN': 'PIN ya sasa', 'New 4-digit PIN': 'PIN mpya ya tarakimu 4',
+  'Current password': 'Nenosiri la sasa', 'New password (6+ characters)': 'Nenosiri jipya (herufi 6+)',
+  'Never share your PIN. H-Pesa will never ask for it by phone or message.': 'Usishiriki PIN yako. H-Pesa haitakuomba PIN kwa simu au ujumbe.',
+  'PIN changed': 'PIN imebadilishwa', 'Password changed': 'Nenosiri limebadilishwa',
+  'new': 'mpya', 'You are all caught up': 'Hakuna jipya', 'Mark all as read': 'Weka zote zimesomwa', 'Notifications': 'Arifa',
   'Recipient': 'Mpokeaji', 'Send Money': 'Tuma Pesa', 'Secured with your PIN': 'Imelindwa na PIN yako', 'Sending…': 'Inatuma…',
 }
 

@@ -9,56 +9,60 @@ async function main() {
   const password = await bcrypt.hash('password123', 10);
   const pin = await bcrypt.hash('1234', 10);
 
-  const landlord = await prisma.user.upsert({
-    where: { phone: '0700111222' },
-    update: {},
-    create: {
-      name: 'Landlord Demo',
-      phone: '0700111222',
-      email: 'landlord@haraka.com',
-      password,
-      pin,
-      role: 'LANDLORD',
-      wallet: { create: { balance: 50000 } },
-    },
-  });
-
-  const tenant = await prisma.user.upsert({
-    where: { phone: '0712345678' },
-    update: {},
-    create: {
-      name: 'Demo User',
-      phone: '0712345678',
-      email: 'demo@hpesa.com',
-      password,
-      pin,
-      role: 'TENANT',
-      wallet: { create: { balance: 25000 } },
-    },
-  });
-
-  // Safe to run on every start: only create the demo property, tenancy and products once.
-  let property = await prisma.property.findFirst({ where: { name: 'Greenview Apartments', landlordId: landlord.id }, include: { units: true } });
-  if (!property) {
-    property = await prisma.property.create({
-      data: {
-        name: 'Greenview Apartments',
-        location: 'Kilimani, Nairobi',
-        landlordId: landlord.id,
-        units: {
-          create: [
-            { unitNumber: 'A1', rentAmount: 25000, status: 'OCCUPIED' },
-            { unitNumber: 'A2', rentAmount: 22000, status: 'VACANT' },
-          ],
-        },
+  // Set SEED_DEMO=false to skip the public demo accounts (do this before real people use the app).
+  if (process.env.SEED_DEMO !== 'false') {
+    const landlord = await prisma.user.upsert({
+      where: { phone: '0700111222' },
+      update: {},
+      create: {
+        name: 'Landlord Demo',
+        phone: '0700111222',
+        email: 'landlord@haraka.com',
+        password,
+        pin,
+        role: 'LANDLORD',
+        wallet: { create: { balance: 50000 } },
       },
-      include: { units: true },
     });
-  }
 
-  const hasTenancy = await prisma.tenancy.findUnique({ where: { unitId: property.units[0].id } });
-  if (!hasTenancy) {
-    await prisma.tenancy.create({ data: { unitId: property.units[0].id, tenantId: tenant.id } });
+    const tenant = await prisma.user.upsert({
+      where: { phone: '0712345678' },
+      update: {},
+      create: {
+        name: 'Demo User',
+        phone: '0712345678',
+        email: 'demo@hpesa.com',
+        password,
+        pin,
+        role: 'TENANT',
+        wallet: { create: { balance: 25000 } },
+      },
+    });
+
+    // Safe to run on every start: only create the demo property, tenancy and products once.
+    let property = await prisma.property.findFirst({ where: { name: 'Greenview Apartments', landlordId: landlord.id }, include: { units: true } });
+    if (!property) {
+      property = await prisma.property.create({
+        data: {
+          name: 'Greenview Apartments',
+          location: 'Kilimani, Nairobi',
+          landlordId: landlord.id,
+          units: {
+            create: [
+              { unitNumber: 'A1', rentAmount: 25000, status: 'OCCUPIED' },
+              { unitNumber: 'A2', rentAmount: 22000, status: 'VACANT' },
+            ],
+          },
+        },
+        include: { units: true },
+      });
+    }
+
+    const hasTenancy = await prisma.tenancy.findUnique({ where: { unitId: property.units[0].id } });
+    if (!hasTenancy) {
+      await prisma.tenancy.create({ data: { unitId: property.units[0].id, tenantId: tenant.id } });
+    }
+
   }
 
   if ((await prisma.product.count()) === 0) {

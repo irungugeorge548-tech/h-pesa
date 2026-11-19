@@ -13,6 +13,7 @@ const chamaRoutes = require('./routes/chama');
 const requestRoutes = require('./routes/requests');
 const scheduledRoutes = require('./routes/scheduled');
 const rewardRoutes = require('./routes/rewards');
+const accountRoutes = require('./routes/account');
 const { runDue } = require('./lib/scheduler');
 
 const app = express();
@@ -37,6 +38,7 @@ app.use('/api/chama', chamaRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/scheduled', scheduledRoutes);
 app.use('/api/rewards', rewardRoutes);
+app.use('/api/account', accountRoutes);
 
 app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'H-Pesa' }));
 

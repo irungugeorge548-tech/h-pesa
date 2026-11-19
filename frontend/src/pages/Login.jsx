@@ -46,7 +46,6 @@ export default function Login({ onLogin }) {
           </button>
         </form>
         <p className="text-center mt-5 text-sm">New here? <Link to="/register" className="text-primary font-semibold">Create account</Link></p>
-        <p className="text-center mt-3 text-xs text-gray-400">Demo: 0712345678 / password123</p>
       </div>
     </div>
   )

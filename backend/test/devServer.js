@@ -9,4 +9,4 @@ Module._load = function (request, ...rest) {
   return realLoad.call(this, request, ...rest)
 }
 require('../prisma/seed.js')
-setTimeout(() => { require('../src/index.js').listen(5000, () => console.log('dev API on 5000')) }, 500)
+setTimeout(() => { require('../src/index.js').listen(process.env.PORT || 5000, () => console.log('dev API on 5000')) }, 500)

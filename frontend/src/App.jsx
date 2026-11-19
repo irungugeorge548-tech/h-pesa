@@ -24,6 +24,9 @@ import Requests from './pages/Requests'
 import PayRequest from './pages/PayRequest'
 import AutoPay from './pages/AutoPay'
 import Rewards from './pages/Rewards'
+import Profile from './pages/Profile'
+import Security from './pages/Security'
+import Notifications from './pages/Notifications'
 import { peekRedirect, clearRedirect } from './lib/api'
 
 // After logging in from a shared payment link, go back to that link instead of Home
@@ -51,6 +54,11 @@ function App() {
     localStorage.setItem('hpesa_user', JSON.stringify(data.user))
     setToken(data.token)
     setUser(data.user)
+  }
+
+  const updateUser = (u) => {
+    localStorage.setItem('hpesa_user', JSON.stringify(u))
+    setUser(u)
   }
 
   const logout = () => {
@@ -86,6 +94,9 @@ function App() {
         <Route path="/autopay" element={token ? <AutoPay /> : <Navigate to="/login" />} />
         <Route path="/rewards" element={token ? <Rewards /> : <Navigate to="/login" />} />
         <Route path="/services" element={token ? <Services /> : <Navigate to="/login" />} />
+        <Route path="/account/profile" element={token ? <Profile onUser={updateUser} /> : <Navigate to="/login" />} />
+        <Route path="/account/security" element={token ? <Security /> : <Navigate to="/login" />} />
+        <Route path="/account/notifications" element={token ? <Notifications user={user} /> : <Navigate to="/login" />} />
         <Route path="/account" element={token ? <Account user={user} logout={logout} /> : <Navigate to="/login" />} />
       </Routes>
     </div>

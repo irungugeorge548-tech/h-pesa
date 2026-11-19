@@ -118,6 +118,49 @@ async function run(base, keys, log = console.log) {
     check('unknown landlord refused', r.status === 404, r);
   }
 
+  log('Account and security');
+  r = await call('POST', '/api/auth/register', { body: { name: 'Bad', phone: '12345', email: `bad${stamp}@t.app`, password: 'password123', pin: '1234' } });
+  check('invalid phone refused at sign-up', r.status === 400, r);
+  r = await call('POST', '/api/auth/register', { body: { name: 'Bad', phone: `0755${stamp}`, email: `bad2${stamp}@t.app`, password: 'password123', pin: '12' } });
+  check('short PIN refused at sign-up', r.status === 400, r);
+  r = await call('POST', '/api/auth/register', { body: { name: 'Plus', phone: `+2547${stamp}9`.slice(0, 13), email: `plus${stamp}@t.app`, password: 'password123', pin: '1234' } });
+  check('+254 number is stored as 07...', r.status === 200 && /^07\d{8}$/.test(r.data.user.phone), r.data);
+  r = await call('GET', '/api/account/me', { token: A.token });
+  check('profile loads', r.status === 200 && r.data.phone === A.phone && !('password' in r.data), r);
+  r = await call('PATCH', '/api/account/profile', { token: A.token, body: { name: 'Amina Wanjiru' } });
+  check('name can be changed', r.status === 200 && r.data.name === 'Amina Wanjiru', r);
+  r = await call('PATCH', '/api/account/profile', { token: A.token, body: { email: `brian${stamp}@test.app` } });
+  check('email already used by someone else is refused', r.status === 409, r);
+  r = await call('PATCH', '/api/account/profile', { token: A.token, body: { email: 'nonsense' } });
+  check('bad email refused', r.status === 400, r);
+  const D = await mk('Dina', 6);
+  r = await call('POST', '/api/account/change-pin', { token: D.token, body: { currentPin: '0000', newPin: '4321' } });
+  check('PIN change needs the current PIN', r.status === 400, r);
+  r = await call('POST', '/api/account/change-pin', { token: D.token, body: { currentPin: '1234', newPin: '43' } });
+  check('new PIN must be 4 digits', r.status === 400, r);
+  r = await call('POST', '/api/account/change-pin', { token: D.token, body: { currentPin: '1234', newPin: '4321' } });
+  check('PIN changed', r.status === 200, r);
+  r = await call('POST', '/api/transactions/send', { token: D.token, body: { phone: A.phone, amount: 10, pin: '1234' } });
+  check('old PIN no longer works', r.status >= 400, r);
+  r = await call('POST', '/api/transactions/send', { token: D.token, body: { phone: A.phone, amount: 10, pin: '4321' } });
+  check('new PIN works', r.status === 200, r);
+  r = await call('POST', '/api/account/change-password', { token: D.token, body: { currentPassword: 'wrong', newPassword: 'newsecret1' } });
+  check('password change needs the current password', r.status === 400, r);
+  r = await call('POST', '/api/account/change-password', { token: D.token, body: { currentPassword: 'password123', newPassword: 'newsecret1' } });
+  check('password changed', r.status === 200, r);
+  r = await call('POST', '/api/auth/login', { body: { phone: D.phone, password: 'newsecret1' } });
+  check('can log in with the new password', r.status === 200, r);
+  r = await call('POST', '/api/auth/login', { body: { phone: D.phone, password: 'password123' } });
+  check('old password refused', r.status === 400, r);
+  if (keys.hfleet) {
+    r = await call('POST', '/api/sso/balance', { key: keys.hfleet, body: { token: A.token } });
+    check('partner app can read the balance', r.status === 200 && typeof r.data.balance === 'number', r);
+    r = await call('POST', '/api/sso/balance', { key: keys.hfleet, body: { token: 'garbage' } });
+    check('balance refused for a bad token', r.status === 401, r);
+    r = await call('POST', '/api/sso/balance', { key: 'nope', body: { token: A.token } });
+    check('balance refused without a partner key', r.status === 401, r);
+  }
+
   log('Payment requests / links');
   r = await call('POST', '/api/requests', { token: C.token, body: { amount: 200, note: 'Lunch' } });
   check('create request', r.status === 200 && r.data.code, r);
