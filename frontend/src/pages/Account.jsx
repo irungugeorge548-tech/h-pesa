@@ -7,6 +7,7 @@ export default function Account({ user, logout }) {
   const rows = [
     { icon: 'user', title: 'Profile', sub: 'Name, phone and email', to: '/account/profile' },
     { icon: 'lock', title: 'PIN & Security', sub: 'Change your PIN', to: '/account/security' },
+    { icon: 'grid', title: 'Other apps', sub: 'Open H-Fleet and more', to: '/account/apps' },
     { icon: 'bell', title: 'Notifications', sub: 'Alerts and receipts', to: '/account/notifications' },
   ]
   return (

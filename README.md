@@ -70,3 +70,12 @@ Note: with SQLite on Render's free tier the data resets on every deploy. Databas
 
 ### Test
 `cd backend && npm install && npm test` (offline, in-memory) — `npm run smoke` checks a running server (set `BASE_URL`, `HFLEET_API_KEY`, ...).
+
+
+## Other apps (v4)
+After registering, H-Pesa offers to open accounts in the other apps (their own passwords). Vercel env: `VITE_HFLEET_URL` (default https://h-fleet.vercel.app), optional `VITE_HHOMES_URL`, `VITE_HMART_URL`.
+H-Fleet's "Top up" opens `/#sso=<token>&next=/deposit`, which signs in the wallet that H-Fleet is connected to.
+
+
+## Database (v5)
+This app now stores data in TiDB Cloud (MySQL-compatible) so accounts survive restarts and deploys. Set `DATABASE_URL` on Render (see backend/.env.example). The tables are created automatically on start (`prisma db push`).

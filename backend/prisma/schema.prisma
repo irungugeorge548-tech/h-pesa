@@ -3,8 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = "file:./dev.db"
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -41,7 +41,7 @@ model Transaction {
   type        String
   amount      Float
   fee         Float    @default(0)
-  description String?
+  description String? @db.Text
   status      String   @default("COMPLETED")
   senderId    String
   recipientId String?
@@ -59,7 +59,7 @@ model Property {
   id          String   @id @default(cuid())
   name        String
   location    String
-  description String?
+  description String? @db.Text
   landlordId  String
   landlord    User     @relation(fields: [landlordId], references: [id])
   units       Unit[]
@@ -91,10 +91,10 @@ model Tenancy {
 model Product {
   id          String   @id @default(cuid())
   name        String
-  description String?
+  description String? @db.Text
   price       Float
   category    String
-  image       String?
+  image       String? @db.Text
   stock       Int      @default(100)
   createdAt   DateTime @default(now())
 }
@@ -120,7 +120,7 @@ model Order {
 model MaintenanceRequest {
   id          String   @id @default(cuid())
   tenantId    String
-  description String
+  description String @db.Text
   status      String   @default("OPEN")
   tenant      User     @relation(fields: [tenantId], references: [id])
   createdAt   DateTime @default(now())
@@ -184,7 +184,7 @@ model PaymentRequest {
   code        String    @unique
   requesterId String
   amount      Float?    // null = payer chooses the amount
-  note        String?
+  note        String? @db.Text
   reusable    Boolean   @default(false)
   status      String    @default("OPEN") // OPEN, PAID, CANCELLED
   paidById    String?
@@ -201,7 +201,7 @@ model ScheduledPayment {
   chamaId        String?
   amount         Float
   frequency      String    // DAILY, WEEKLY, MONTHLY
-  note           String?
+  note           String? @db.Text
   nextRunAt      DateTime
   lastRunAt      DateTime?
   lastStatus     String?
@@ -216,7 +216,7 @@ model RewardEntry {
   userId      String
   points      Int      // positive = earned, negative = redeemed
   source      String   // H-PESA, H-FLEET, H-HOMES, H-MART
-  reason      String
+  reason      String @db.Text
   externalRef String?
   createdAt   DateTime @default(now())
 

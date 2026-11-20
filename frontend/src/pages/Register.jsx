@@ -20,7 +20,7 @@ export default function Register({ onLogin }) {
     try {
       const res = await axios.post('/api/auth/register', form)
       onLogin(res.data)
-      navigate('/')
+      navigate('/apps')
     } catch (err) {
       setError(err.response?.data?.error || 'Registration failed')
     } finally { setLoading(false) }
@@ -34,7 +34,7 @@ export default function Register({ onLogin }) {
       </div>
       <div className="bg-white rounded-t-3xl px-6 pt-8 pb-8 flex-1">
         <h2 className="text-xl font-bold">{t('Create account')}</h2>
-        <p className="text-gray-500 text-sm mb-4">One account for H-Pesa, H-Fleet and H-Homes</p>
+        <p className="text-gray-500 text-sm mb-4">Your H-Pesa wallet account</p>
         {error && <div className="bg-red-50 text-red-700 p-3 rounded-xl mb-4 text-sm">{error}</div>}
         <form onSubmit={handleSubmit} className="space-y-3">
           <input className={field} placeholder="Full name" value={form.name} onChange={set('name')} required />

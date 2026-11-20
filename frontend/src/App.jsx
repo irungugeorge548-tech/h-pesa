@@ -1,4 +1,5 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import { useState, useEffect } from 'react'
 import Splash from './pages/Splash'
 import Login from './pages/Login'
@@ -27,6 +28,7 @@ import Rewards from './pages/Rewards'
 import Profile from './pages/Profile'
 import Security from './pages/Security'
 import Notifications from './pages/Notifications'
+import ConnectApps from './pages/ConnectApps'
 import { peekRedirect, clearRedirect } from './lib/api'
 
 // After logging in from a shared payment link, go back to that link instead of Home
@@ -67,13 +69,35 @@ function App() {
     setUser(null)
   }
 
+  // Arriving from another app (for example H-Fleet's "Top up"): open THIS wallet, the one that app is connected to,
+  // even if a different H-Pesa account was logged in on this phone. The token travels in the address
+  // fragment (never sent to a server) and is removed from the address bar straight away.
+  const navigate = useNavigate()
+  const handoff = () => {
+    const h = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const sso = h.get('sso')
+    if (!sso) return
+    const next = ['/deposit', '/'].includes(h.get('next')) ? h.get('next') : '/'
+    window.history.replaceState(null, '', window.location.pathname + window.location.search)
+    axios.get('/api/account/me', { headers: { Authorization: `Bearer ${sso}` } })
+      .then(r => {
+        const same = localStorage.getItem('hpesa_token') === sso
+        if (!same) { localStorage.clear(); login({ token: sso, user: r.data }) }
+        navigate(next, { replace: true })
+      })
+      .catch(() => { /* an old or invalid token: carry on with the normal login */ })
+  }
+  useEffect(() => { handoff(); window.addEventListener('hashchange', handoff); return () => window.removeEventListener('hashchange', handoff) }, [])
+
   if (showSplash) return <Splash onDone={finishSplash} />
 
   return (
     <div className="min-h-screen">
       <Routes>
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
-        <Route path="/register" element={!token ? <Register onLogin={login} /> : <Navigate to="/" />} />
+        <Route path="/register" element={!token ? <Register onLogin={login} /> : <Navigate to="/apps" replace />} />
+        <Route path="/apps" element={token ? <ConnectApps user={user} fresh /> : <Navigate to="/login" />} />
+        <Route path="/account/apps" element={token ? <ConnectApps user={user} /> : <Navigate to="/login" />} />
         <Route path="/" element={token ? <HomeOrRedirect user={user} logout={logout} /> : <Navigate to="/login" />} />
         <Route path="/send" element={token ? <SendMoney /> : <Navigate to="/login" />} />
         <Route path="/paybill" element={token ? <PayBill /> : <Navigate to="/login" />} />

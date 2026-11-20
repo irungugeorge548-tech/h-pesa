@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate, Link, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { Icon, GREEN_GRADIENT } from '../components/ui'
 
 export default function Login({ onLogin }) {
-  const [phone, setPhone] = useState('')
+  const [q] = useSearchParams()
+  const [phone, setPhone] = useState(q.get('phone') || '') // other apps can pre-fill the number of the wallet you connected
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
