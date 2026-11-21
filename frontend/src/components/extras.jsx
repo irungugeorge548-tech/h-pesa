@@ -5,6 +5,7 @@ import { bioCheck, bioEnabled } from '../lib/device'
 
 // Haraka Pesa cheetah: friendly, small, spotted.
 export function Cheetah({ size = 64 }) {
+ return <span style={{ width: size, height: size, background: '#0E7A47', border: '1px solid rgba(255,255,255,.4)' }} className="rounded-2xl flex items-center justify-center text-white"><Icon name="wallet" size={Math.round(size * 0.6)} /></span>
   return (
     <svg width={size} height={size} viewBox="0 0 100 100" aria-label="H-Pesa cheetah">
       <circle cx="26" cy="26" r="13" fill="#F2B544" /><circle cx="26" cy="26" r="6" fill="#7A4A12" />
