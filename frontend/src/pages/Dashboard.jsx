@@ -4,6 +4,7 @@ import axios from 'axios'
 import { Icon, TabBar, TxRow, GREEN_GRADIENT } from '../components/ui'
 import { useT } from '../i18n'
 import { Cheetah } from '../components/extras'
+import ChatBot from '../components/ChatBot'
 
 const actions = [
   { to: '/send', label: 'Send', icon: 'send' },
@@ -30,6 +31,7 @@ export default function Dashboard({ user }) {
 
   return (
     <div className="h-screen flex flex-col bg-white">
+      <ChatBot name={(user?.name || '').split(' ')[0]} />
       <div className="flex-1 overflow-y-auto">
         <div className="text-white px-5 pt-5 pb-24" style={{ background: GREEN_GRADIENT }}>
           <div className="flex items-center justify-between">
@@ -45,7 +47,7 @@ export default function Dashboard({ user }) {
               <h1 className="text-3xl font-extrabold">{t('Hi')}, {firstName}</h1>
               <p className="text-white/80 text-sm mt-1">{t('Welcome back to H-Pesa')} 👋</p>
             </div>
-            <div className="w-20 h-20 rounded-2xl bg-white/90 flex items-center justify-center"><Cheetah size={64} /></div>
+            <Cheetah size={112} ride />
           </div>
 
           <div className="mt-5 rounded-3xl bg-white/10 border border-white/15 p-5">

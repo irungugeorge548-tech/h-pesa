@@ -5,3 +5,10 @@
 body {
   @apply bg-gray-50 text-dark;
 }
+
+/* running cheetah */
+.chee-pan { transform-origin: 60% 60%; animation: chee-run 2.4s ease-in-out infinite alternate; }
+.chee-streaks { background: repeating-linear-gradient(90deg, rgba(255,255,255,.0) 0 18px, rgba(255,255,255,.10) 18px 20px); animation: chee-dash .5s linear infinite; mix-blend-mode: screen; }
+@keyframes chee-run { from { transform: scale(1.08) translate(-2%, 1%); } to { transform: scale(1.2) translate(2%, -1.5%); } }
+@keyframes chee-dash { from { background-position: 0 0; } to { background-position: -40px 0; } }
+@media (prefers-reduced-motion: reduce) { .chee-pan, .chee-streaks { animation: none !important; } }

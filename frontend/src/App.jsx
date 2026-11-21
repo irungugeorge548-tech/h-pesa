@@ -86,7 +86,7 @@ function App() {
     setToken(w.token); setUser(w.user); touch(); setLocked(false)
   }
 
-  // Lock like M-Pesa: PIN after a minute away; full login after a long absence
+  // Lock screen: PIN after a minute away; full login after a long absence
   const [locked, setLocked] = useState(() => !!localStorage.getItem('hpesa_token') && awayFor() > LOCK_AFTER_MS)
   useEffect(() => {
     if (token && awayFor() > LOGOUT_AFTER_MS) { saveWallets([]); clearSession(); setToken(null); setUser(null); setLocked(false) }

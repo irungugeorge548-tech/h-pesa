@@ -3,22 +3,13 @@ import axios from 'axios'
 import { Icon, GREEN_GRADIENT } from './ui'
 import { bioCheck, bioEnabled } from '../lib/device'
 
-// Haraka Pesa cheetah: friendly, small, spotted.
-export function Cheetah({ size = 64 }) {
- return <span style={{ width: size, height: size, background: '#0E7A47', border: '1px solid rgba(255,255,255,.4)' }} className="rounded-2xl flex items-center justify-center text-white"><Icon name="wallet" size={Math.round(size * 0.6)} /></span>
+// Haraka Pesa cheetah: a photo of a real running cheetah. `size` is the width. With `ride` it runs: the picture
+// sweeps, bobs and shows speed streaks, like the car in H-Fleet.
+export function Cheetah({ size = 120, ride = false, className = '' }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 100 100" aria-label="H-Pesa cheetah">
-      <circle cx="26" cy="26" r="13" fill="#F2B544" /><circle cx="26" cy="26" r="6" fill="#7A4A12" />
-      <circle cx="74" cy="26" r="13" fill="#F2B544" /><circle cx="74" cy="26" r="6" fill="#7A4A12" />
-      <ellipse cx="50" cy="56" rx="38" ry="34" fill="#F7C65A" />
-      <ellipse cx="50" cy="68" rx="20" ry="15" fill="#FFF1CC" />
-      {[[22, 50], [30, 40], [70, 40], [78, 50], [36, 33], [64, 33], [18, 62], [82, 62]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="2.8" fill="#7A4A12" />)}
-      <path d="M36 44c-2 7 0 14 4 18M64 44c2 7 0 14-4 18" stroke="#3B2A10" strokeWidth="3.2" fill="none" strokeLinecap="round" />
-      <ellipse cx="38" cy="47" rx="4.5" ry="5.5" fill="#fff" /><ellipse cx="62" cy="47" rx="4.5" ry="5.5" fill="#fff" />
-      <circle cx="39" cy="48" r="2.8" fill="#1B1B1B" /><circle cx="61" cy="48" r="2.8" fill="#1B1B1B" />
-      <path d="M44 62h12l-6 6z" fill="#3B2A10" />
-      <path d="M50 68v4M43 74c3 3 11 3 14 0" stroke="#3B2A10" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-    </svg>
+    <div className={`chee relative overflow-hidden rounded-2xl flex-shrink-0 ${className}`} style={{ width: size, height: Math.round(size * 0.75) }} role="img" aria-label="H-Pesa cheetah">
+      <img src="/cheetah.jpg" alt="" draggable="false" className={`absolute inset-0 w-full h-full object-cover ${ride ? 'chee-pan' : ''}`} />
+    </div>
   )
 }
 
@@ -27,7 +18,7 @@ export function Sticker({ user, compact }) {
   if (!user?.username) return null
   return (
     <div className={`rounded-3xl text-white flex items-center gap-3 ${compact ? 'p-3' : 'p-4'}`} style={{ background: GREEN_GRADIENT }}>
-      <div className="bg-white/90 rounded-2xl p-1.5 flex-shrink-0"><Cheetah size={compact ? 40 : 52} /></div>
+      <Cheetah size={compact ? 64 : 84} className="flex-shrink-0" />
       <div className="min-w-0">
         <p className="text-[11px] uppercase tracking-wider text-white/75">Haraka Pesa • H-Pesa</p>
         <p className={`font-extrabold truncate ${compact ? 'text-lg' : 'text-2xl'}`}>@{user.username}</p>
@@ -71,7 +62,7 @@ export function shrinkImage(file, max = 256) {
   })
 }
 
-// Lock screen: PIN only (or fingerprint). Like M-Pesa, it does not ask for the phone number again.
+// Lock screen: PIN only (or fingerprint). It does not ask for the phone number again.
 export function LockScreen({ user, onUnlock, onFullLogout }) {
   const [pin, setPin] = useState('')
   const [error, setError] = useState('')
@@ -127,7 +118,7 @@ export function ReceiptSheet({ tx, user, onClose }) {
   return (
     <div className="fixed inset-0 z-[2000] bg-black/50 flex items-end" onClick={onClose}>
       <div className="bg-white w-full rounded-t-3xl p-5 max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-        <div className="flex items-center gap-3 mb-3"><Cheetah size={44} /><div><p className="font-extrabold">Transaction receipt</p><p className="text-xs text-gray-500">{fmt(tx.createdAt)}</p></div></div>
+        <div className="flex items-center gap-3 mb-3"><Cheetah size={64} /><div><p className="font-extrabold">Transaction receipt</p><p className="text-xs text-gray-500">{fmt(tx.createdAt)}</p></div></div>
         <pre className="bg-gray-50 border rounded-2xl p-3 text-xs whitespace-pre-wrap">{text}</pre>
         <div className="flex gap-3 mt-4">
           <button onClick={() => share('H-Pesa receipt', text)} className="flex-1 bg-primary text-white rounded-2xl py-3 font-semibold">Share</button>

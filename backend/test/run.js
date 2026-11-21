@@ -7,7 +7,6 @@ const { createFakePrisma } = require('./fakePrisma');
 process.env.DISABLE_SCHEDULER = '1';
 process.env.REQUIRE_TERMS = '0';
 process.env.DISABLE_RATE_LIMIT = '1';
-process.env.PIN_RESET_HOURS = '0';
 process.env.CRON_SECRET = 'test-cron';
 process.env.HFLEET_API_KEY = 'hpk_test_fleet';
 process.env.HHOMES_API_KEY = 'hpk_test_homes';
@@ -120,13 +119,10 @@ async function main() {
   ok6('forgot PIN needs the password', r.status === 400, r);
   r = await call('POST', '/api/auth/forgot-pin', { body: { phone: phoneA, email: `t${s6}@t.app`, password: 'brandnew1', newPin: '2468' } });
   ok6('forgot PIN is accepted', r.status === 200, r);
+  r = await call('POST', '/api/account/verify-pin', { token: t1, body: { pin: '2468' } });
+  ok6('the new PIN works straight away', r.status === 200, r);
   r = await call('POST', '/api/account/verify-pin', { token: t1, body: { pin: '1234' } });
-  ok6('using the OLD PIN cancels the reset (owner protected)', r.status === 200, r);
-  r = await call('POST', '/api/account/verify-pin', { token: t1, body: { pin: '2468' } });
-  ok6('...so the requested new PIN no longer works', r.status === 400, r);
-  await call('POST', '/api/auth/forgot-pin', { body: { phone: phoneA, email: `t${s6}@t.app`, password: 'brandnew1', newPin: '2468' } });
-  r = await call('POST', '/api/account/verify-pin', { token: t1, body: { pin: '2468' } });
-  ok6('with no old-PIN use, the new PIN activates after the wait', r.status === 200, r);
+  ok6('...and the old PIN no longer works', r.status === 400, r);
 
   console.log('Attack protection');
   r = await fetch(base + '/api/health');

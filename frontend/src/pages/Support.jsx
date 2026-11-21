@@ -23,7 +23,7 @@ export default function Support() {
       <div className="bg-white rounded-3xl border shadow-sm p-4">
         <div className="space-y-2 max-h-72 overflow-y-auto">
           {chat.map((m, i) => <div key={i} className={`flex ${m.from === 'me' ? 'justify-end' : 'gap-2'}`}>
-            {m.from === 'bot' && <Cheetah size={28} />}
+            {m.from === 'bot' && <Cheetah size={40} />}
             <p className={`text-sm rounded-2xl px-3 py-2 max-w-[80%] ${m.from === 'me' ? 'bg-primary text-white' : 'bg-gray-100'}`}>{m.text}</p></div>)}
         </div>
         <div className="flex flex-wrap gap-2 mt-3">{TOPICS.map(t => <button key={t.id} onClick={() => ask(t.q, t.a)} className="text-xs border border-primary/40 text-primary rounded-full px-3 py-1.5">{t.q}</button>)}</div>

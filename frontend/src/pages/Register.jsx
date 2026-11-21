@@ -37,7 +37,7 @@ export default function Register({ onLogin }) {
 
   if (done) return (
     <div className="min-h-screen flex flex-col" style={{ background: GREEN_GRADIENT }}>
-      <div className="flex flex-col items-center text-white pt-12 pb-6"><Cheetah size={90} /><h1 className="text-2xl font-extrabold mt-2">Karibu, {done.user.name.split(' ')[0]}!</h1><p className="text-white/80 text-sm">Your wallet is ready</p></div>
+      <div className="flex flex-col items-center text-white pt-12 pb-6"><Cheetah size={210} ride /><h1 className="text-2xl font-extrabold mt-2">Karibu, {done.user.name.split(' ')[0]}!</h1><p className="text-white/80 text-sm">Your wallet is ready</p></div>
       <div className="bg-white rounded-t-3xl px-6 pt-8 pb-8 flex-1 space-y-4">
         <div><p className="text-sm text-gray-500 mb-2">This is your username. It is permanent. Share it so friends can send you money.</p><Sticker user={done.user} /></div>
         {canBio && <div className="border rounded-2xl p-4"><p className="font-semibold">Unlock with your fingerprint?</p><p className="text-xs text-gray-500 mb-3">Uses your phone's own fingerprint. Your PIN always still works.</p>
@@ -49,7 +49,7 @@ export default function Register({ onLogin }) {
 
   return (
     <div className="min-h-screen flex flex-col" style={{ background: GREEN_GRADIENT }}>
-      <div className="flex flex-col items-center text-white pt-8 pb-4"><Cheetah size={64} /><h1 className="text-3xl font-extrabold mt-1">H-Pesa</h1></div>
+      <div className="flex flex-col items-center text-white pt-8 pb-4"><Cheetah size={120} ride /><h1 className="text-3xl font-extrabold mt-1">H-Pesa</h1></div>
       <div className="bg-white rounded-t-3xl px-6 pt-8 pb-8 flex-1">
         <h2 className="text-xl font-bold">{t('Create account')}</h2>
         <p className="text-gray-500 text-sm mb-4">Use your real name: your username is made from it.</p>

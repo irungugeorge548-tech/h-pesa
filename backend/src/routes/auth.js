@@ -12,7 +12,6 @@ const sign = (user) => jwt.sign({ userId: user.id }, secret(), { expiresIn: '7d'
 const shape = (u) => ({ id: u.id, name: u.name, phone: u.phone, email: u.email, username: u.username || null, photo: u.photo || null });
 const MAX_WALLETS_PER_DEVICE = 3;
 const SIGNUP_BONUS = () => { const n = Number(process.env.SIGNUP_BONUS); return Number.isFinite(n) && n >= 0 ? n : 10000; };
-const PIN_RESET_HOURS = () => { const n = Number(process.env.PIN_RESET_HOURS); return Number.isFinite(n) && n >= 0 ? n : 24; };
 
 const perIp = (windowMs, max, message) => S.rateLimit({ windowMs, max, message });
 
@@ -92,8 +91,7 @@ router.post('/forgot-password', perIp(15 * 60 * 1000, 6), async (req, res) => {
   } catch (err) { console.error(err); res.status(500).json({ error: 'Server error' }); }
 });
 
-// Forgot PIN: like a SIM-swap safe reset. The new PIN only starts working after a waiting period,
-// and the request is cancelled if the real owner uses the old PIN in the meantime.
+// Forgot PIN: the owner proves who they are with phone + email + password and the PIN changes straight away.
 router.post('/forgot-pin', perIp(15 * 60 * 1000, 6), async (req, res) => {
   try {
     const phone = L.normalizePhone(req.body?.phone);
@@ -103,10 +101,9 @@ router.post('/forgot-pin', perIp(15 * 60 * 1000, 6), async (req, res) => {
     const user = await prisma.user.findUnique({ where: { phone } });
     const ok = !!(user && user.email === email && password && (await bcrypt.compare(String(password), user.password)));
     if (!ok) return res.status(400).json({ error: 'Those details do not match this account' });
-    const hours = PIN_RESET_HOURS();
-    await prisma.user.update({ where: { id: user.id }, data: { pendingPin: await bcrypt.hash(String(newPin), 10), pendingPinAt: new Date(Date.now() + hours * 3600 * 1000) } });
-    S.audit('PIN_RESET_REQUEST', req, user.id);
-    res.json({ message: hours > 0 ? `Your new PIN will start working in ${hours} hours. If this was not you, just keep using your old PIN and the request is cancelled.` : 'Your new PIN is ready to use.', hours });
+    await prisma.user.update({ where: { id: user.id }, data: { pin: await bcrypt.hash(String(newPin), 10), pendingPin: null, pendingPinAt: null } });
+    S.resetLoginLocks(); S.audit('PIN_RESET', req, user.id);
+    res.json({ message: 'PIN changed. You can use your new PIN now.' });
   } catch (err) { console.error(err); res.status(500).json({ error: 'Server error' }); }
 });
 

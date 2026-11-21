@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Cheetah } from '../components/extras'
 
 export default function Splash({ onDone }) {
   useEffect(() => {
@@ -14,8 +15,8 @@ export default function Splash({ onDone }) {
         @keyframes hp-fade { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
       `}</style>
 
-      <div className="w-24 h-24 rounded-3xl bg-white/15 border border-white/25 flex items-center justify-center shadow-xl"
-        style={{ animation: 'hp-pop .5s ease-out both' }}>
+      <div style={{ animation: 'hp-pop .5s ease-out both' }}><Cheetah size={260} ride className="shadow-xl" /></div>
+      <div className="hidden">
         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <path d="M3 7a2 2 0 0 1 2-2h13v4" />
           <rect x="3" y="7" width="18" height="13" rx="2" />

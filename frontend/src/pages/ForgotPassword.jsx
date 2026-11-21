@@ -21,9 +21,9 @@ export default function Forgot({ mode }) {
   }
   return (
     <div className="min-h-screen flex flex-col" style={{ background: GREEN_GRADIENT }}>
-      <div className="flex flex-col items-center text-white pt-8 pb-4"><Cheetah size={56} /><h1 className="text-2xl font-extrabold mt-1">{isPin ? 'Forgot PIN' : 'Forgot password'}</h1></div>
+      <div className="flex flex-col items-center text-white pt-8 pb-4"><Cheetah size={110} ride /><h1 className="text-2xl font-extrabold mt-1">{isPin ? 'Forgot PIN' : 'Forgot password'}</h1></div>
       <div className="bg-white rounded-t-3xl px-6 pt-8 pb-8 flex-1">
-        <p className="text-gray-500 text-sm mb-4">{isPin ? 'Enter your phone, email and password. For your safety, the new PIN starts working after 24 hours. If it was not you, use your old PIN once and the change is cancelled.' : 'Enter your phone, email and your current PIN to choose a new password.'}</p>
+        <p className="text-gray-500 text-sm mb-4">{isPin ? 'Enter your phone, email and password, then choose a new 4-digit PIN. It changes straight away.' : 'Enter your phone, email and your current PIN to choose a new password.'}</p>
         {error && <div className="bg-red-50 text-red-700 p-3 rounded-xl mb-4 text-sm">{error}</div>}
         {msg && <div className="bg-green-50 text-green-700 p-3 rounded-xl mb-4 text-sm">{msg}</div>}
         <form onSubmit={submit} className="space-y-3">

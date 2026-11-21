@@ -29,7 +29,7 @@ export default function Login({ onLogin }) {
   return (
     <div className="min-h-screen flex flex-col" style={{ background: GREEN_GRADIENT }}>
       <div className="flex-1 flex flex-col items-center justify-center text-white pt-10 pb-6">
-        <div className="w-24 h-24 rounded-3xl bg-white/90 flex items-center justify-center"><Cheetah size={78} /></div>
+        <Cheetah size={250} ride className="shadow-xl" />
         <h1 className="text-4xl font-extrabold mt-4">H-Pesa</h1>
         <p className="text-white/80 text-sm mt-1">Haraka Pesa • Fast Money</p>
       </div>

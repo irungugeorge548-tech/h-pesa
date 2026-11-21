@@ -1,6 +1,6 @@
 // Minimal service worker: lets the app install and open its shell offline.
 // API calls and map tiles always go to the network (never cached here).
-const CACHE = 'hpesa-shell-v6'
+const CACHE = 'hpesa-shell-v7'
 const SHELL = ['/', '/icon-192.png', '/icon-512.png']
 
 self.addEventListener('install', (e) => {
