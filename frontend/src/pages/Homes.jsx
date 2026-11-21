@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
@@ -43,7 +44,7 @@ export default function Homes() {
             <p className="text-primary font-bold">Rent: KES {myUnit.unit.rentAmount.toLocaleString()}</p>
             <form onSubmit={payRent} className="mt-4 space-y-2">
               <input type="number" placeholder="Amount (full or Lipa Mdogo)" value={amount} onChange={e => setAmount(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
-              <input type="password" placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
+              <PasswordInput placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-3 py-2 border rounded-xl" required />
               <button className="w-full bg-primary text-white py-2 rounded-xl">Pay Rent</button>
             </form>
             {message && <p className="text-sm mt-2 text-green-600">{message}</p>}

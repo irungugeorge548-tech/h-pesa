@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { Icon, GREEN_GRADIENT } from '../components/ui'
@@ -48,7 +49,7 @@ export default function PayRequest({ loggedIn }) {
               <form onSubmit={pay} className="space-y-3 mt-6">
                 {error && <div className="bg-red-50 text-red-700 p-3 rounded-xl text-sm">{error}</div>}
                 {!info.amount && <input type="number" inputMode="decimal" placeholder={t('Amount (KES)')} value={amount} onChange={e => setAmount(e.target.value)} className="w-full px-4 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary" required />}
-                <input type="password" inputMode="numeric" maxLength={4} placeholder={t('H-Pesa PIN')} value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary" required />
+                <PasswordInput inputMode="numeric" maxLength={4} placeholder={t('H-Pesa PIN')} value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary" required />
                 <button disabled={busy} className="w-full bg-primary disabled:opacity-60 text-white py-4 rounded-2xl font-semibold flex items-center justify-center gap-2"><Icon name="lock" size={20} />{t('Pay')}</button>
               </form>)}
         </>)}

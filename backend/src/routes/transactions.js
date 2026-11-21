@@ -6,15 +6,20 @@ const auth = require('../middleware/auth');
 const router = express.Router();
 const prisma = new PrismaClient();
 
-const verifyPin = async (userId, pin) => {
-  const user = await prisma.user.findUnique({ where: { id: userId } });
-  return user && await bcrypt.compare(pin, user.pin);
-};
+const L = require('../lib/ledger');
+// Same PIN check as everywhere else (5 wrong tries -> 15 minutes)
+const verifyPin = async (userId, pin) => { try { await L.verifyPin(userId, pin); return true; } catch { return false; } };
 
 router.post('/send', auth, async (req, res) => {
   try {
-    const { phone, amount, pin } = req.body;
+    let { phone, amount, pin } = req.body;
     if (!phone || !amount || !pin) return res.status(400).json({ error: 'Missing fields' });
+    // send to a unique username (for example @tnirungu27) as well as to a phone number
+    if (String(phone).startsWith('@')) {
+      const target = await prisma.user.findUnique({ where: { username: String(phone).slice(1).toLowerCase() } });
+      if (!target) return res.status(404).json({ error: 'No user with that username' });
+      phone = target.phone;
+    }
     if (!(await verifyPin(req.userId, pin))) return res.status(400).json({ error: 'Invalid PIN' });
 
     const numAmount = parseFloat(amount);

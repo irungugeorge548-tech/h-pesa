@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { Screen, Icon, GREEN_GRADIENT } from '../components/ui'
 import { useT } from '../i18n'
 import { get, post, errMsg } from '../lib/api'
@@ -36,7 +37,7 @@ export default function Rewards() {
           {msg && <div className="bg-green-50 text-green-700 p-3 rounded-xl text-sm">{msg}</div>}
           {error && <div className="bg-red-50 text-red-700 p-3 rounded-xl text-sm">{error}</div>}
           <input className={field} type="number" inputMode="numeric" placeholder={`${t('Points to redeem')} (${t('Minimum')} ${r.minRedeem})`} value={points} onChange={e => setPoints(e.target.value)} required />
-          <input className={field} type="password" inputMode="numeric" maxLength={4} placeholder={t('H-Pesa PIN')} value={pin} onChange={e => setPin(e.target.value)} required />
+          <PasswordInput className={field} inputMode="numeric" maxLength={4} placeholder={t('H-Pesa PIN')} value={pin} onChange={e => setPin(e.target.value)} required />
           <button disabled={busy || r.points < r.minRedeem} className="w-full bg-primary disabled:opacity-50 text-white py-3.5 rounded-2xl font-semibold">{t('Redeem')}</button>
         </form>
 

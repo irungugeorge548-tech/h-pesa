@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { Screen, Icon } from '../components/ui'
 import { useT } from '../i18n'
 import { post, errMsg } from '../lib/api'
@@ -34,12 +35,12 @@ export default function Security() {
   return (
     <Screen title="PIN & Security">
       <Card title="Change PIN" onSubmit={run(setPinState, '/api/account/change-pin', pin, () => setPin({ currentPin: '', newPin: '' }))} {...pinState}>
-        <input className={field} type="password" inputMode="numeric" maxLength={4} placeholder={t('Current PIN')} value={pin.currentPin} onChange={e => setPin({ ...pin, currentPin: e.target.value })} required />
-        <input className={field} type="password" inputMode="numeric" maxLength={4} placeholder={t('New 4-digit PIN')} value={pin.newPin} onChange={e => setPin({ ...pin, newPin: e.target.value })} required />
+        <PasswordInput className={field} inputMode="numeric" maxLength={4} placeholder={t('Current PIN')} value={pin.currentPin} onChange={e => setPin({ ...pin, currentPin: e.target.value })} required />
+        <PasswordInput className={field} inputMode="numeric" maxLength={4} placeholder={t('New 4-digit PIN')} value={pin.newPin} onChange={e => setPin({ ...pin, newPin: e.target.value })} required />
       </Card>
       <Card title="Change password" onSubmit={run(setPwState, '/api/account/change-password', pw, () => setPw({ currentPassword: '', newPassword: '' }))} {...pwState}>
-        <input className={field} type="password" placeholder={t('Current password')} value={pw.currentPassword} onChange={e => setPw({ ...pw, currentPassword: e.target.value })} required />
-        <input className={field} type="password" placeholder={t('New password (6+ characters)')} value={pw.newPassword} onChange={e => setPw({ ...pw, newPassword: e.target.value })} required />
+        <PasswordInput className={field} placeholder={t('Current password')} value={pw.currentPassword} onChange={e => setPw({ ...pw, currentPassword: e.target.value })} required />
+        <PasswordInput className={field} placeholder={t('New password (6+ characters)')} value={pw.newPassword} onChange={e => setPw({ ...pw, newPassword: e.target.value })} required />
       </Card>
       <p className="text-xs text-gray-500 text-center">{t('Never share your PIN. H-Pesa will never ask for it by phone or message.')}</p>
     </Screen>

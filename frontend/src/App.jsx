@@ -29,7 +29,14 @@ import Profile from './pages/Profile'
 import Security from './pages/Security'
 import Notifications from './pages/Notifications'
 import ConnectApps from './pages/ConnectApps'
+import ForgotPassword from './pages/ForgotPassword'
+import Legal from './pages/Legal'
+import Statement from './pages/Statement'
+import Support from './pages/Support'
+import Wallets from './pages/Wallets'
+import { LockScreen } from './components/extras'
 import { peekRedirect, clearRedirect } from './lib/api'
+import { addWallet, wallets, saveWallets, clearSession, touch, awayFor, LOCK_AFTER_MS, LOGOUT_AFTER_MS } from './lib/device'
 
 // After logging in from a shared payment link, go back to that link instead of Home
 function HomeOrRedirect({ user, logout }) {
@@ -52,6 +59,9 @@ function App() {
   }
 
   const login = (data) => {
+    addWallet(data.token, data.user)
+    touch()
+    setLocked(false)
     localStorage.setItem('hpesa_token', data.token)
     localStorage.setItem('hpesa_user', JSON.stringify(data.user))
     setToken(data.token)
@@ -64,10 +74,35 @@ function App() {
   }
 
   const logout = () => {
-    localStorage.clear()
-    setToken(null)
-    setUser(null)
+    // remove only this wallet; if another saved wallet remains, continue with it
+    const rest = wallets().filter(w => w.user.id !== user?.id)
+    saveWallets(rest)
+    clearSession()
+    if (rest.length) { switchTo(rest[0]) } else { setToken(null); setUser(null) }
+    setLocked(false)
   }
+  const switchTo = (w) => {
+    localStorage.setItem('hpesa_token', w.token); localStorage.setItem('hpesa_user', JSON.stringify(w.user))
+    setToken(w.token); setUser(w.user); touch(); setLocked(false)
+  }
+
+  // Lock like M-Pesa: PIN after a minute away; full login after a long absence
+  const [locked, setLocked] = useState(() => !!localStorage.getItem('hpesa_token') && awayFor() > LOCK_AFTER_MS)
+  useEffect(() => {
+    if (token && awayFor() > LOGOUT_AFTER_MS) { saveWallets([]); clearSession(); setToken(null); setUser(null); setLocked(false) }
+    const mark = () => { if (document.visibilityState === 'hidden') touch() }
+    const back = () => {
+      if (document.visibilityState !== 'visible' || !localStorage.getItem('hpesa_token')) return
+      const a = awayFor()
+      if (a > LOGOUT_AFTER_MS) { saveWallets([]); clearSession(); setToken(null); setUser(null) }
+      else if (a > LOCK_AFTER_MS) setLocked(true)
+      else touch()
+    }
+    const beat = setInterval(() => { if (document.visibilityState === 'visible' && !locked) touch() }, 5000)
+    document.addEventListener('visibilitychange', mark); document.addEventListener('visibilitychange', back)
+    window.addEventListener('pagehide', touch)
+    return () => { clearInterval(beat); document.removeEventListener('visibilitychange', mark); document.removeEventListener('visibilitychange', back); window.removeEventListener('pagehide', touch) }
+  }, [token, locked])
 
   // Arriving from another app (for example H-Fleet's "Top up"): open THIS wallet, the one that app is connected to,
   // even if a different H-Pesa account was logged in on this phone. The token travels in the address
@@ -82,7 +117,7 @@ function App() {
     axios.get('/api/account/me', { headers: { Authorization: `Bearer ${sso}` } })
       .then(r => {
         const same = localStorage.getItem('hpesa_token') === sso
-        if (!same) { localStorage.clear(); login({ token: sso, user: r.data }) }
+        if (!same) { clearSession(); login({ token: sso, user: r.data }) }
         navigate(next, { replace: true })
       })
       .catch(() => { /* an old or invalid token: carry on with the normal login */ })
@@ -90,12 +125,20 @@ function App() {
   useEffect(() => { handoff(); window.addEventListener('hashchange', handoff); return () => window.removeEventListener('hashchange', handoff) }, [])
 
   if (showSplash) return <Splash onDone={finishSplash} />
+  if (token && locked) return <LockScreen user={user} onUnlock={() => { touch(); setLocked(false) }} onFullLogout={() => { logout() }} />
 
   return (
     <div className="min-h-screen">
       <Routes>
         <Route path="/login" element={!token ? <Login onLogin={login} /> : <Navigate to="/" />} />
-        <Route path="/register" element={!token ? <Register onLogin={login} /> : <Navigate to="/apps" replace />} />
+        <Route path="/register" element={!token || window.location.search.includes('add=1') ? <Register onLogin={login} /> : <Navigate to="/apps" replace />} />
+        <Route path="/forgot-password" element={<ForgotPassword mode="password" />} />
+        <Route path="/forgot-pin" element={<ForgotPassword mode="pin" />} />
+        <Route path="/terms" element={<Legal kind="terms" />} />
+        <Route path="/privacy" element={<Legal kind="privacy" />} />
+        <Route path="/account/statement" element={token ? <Statement /> : <Navigate to="/login" />} />
+        <Route path="/support" element={token ? <Support /> : <Navigate to="/login" />} />
+        <Route path="/account/wallets" element={token ? <Wallets onSwitch={switchTo} current={user} /> : <Navigate to="/login" />} />
         <Route path="/apps" element={token ? <ConnectApps user={user} fresh /> : <Navigate to="/login" />} />
         <Route path="/account/apps" element={token ? <ConnectApps user={user} /> : <Navigate to="/login" />} />
         <Route path="/" element={token ? <HomeOrRedirect user={user} logout={logout} /> : <Navigate to="/login" />} />

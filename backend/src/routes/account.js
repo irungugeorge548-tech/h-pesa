@@ -3,11 +3,12 @@ const bcrypt = require('bcryptjs');
 const prisma = require('../lib/db');
 const auth = require('../middleware/auth');
 const L = require('../lib/ledger');
+const S = require('../lib/security');
 
 // The signed-in user's own profile and security settings.
 const router = express.Router();
 
-const publicUser = (u) => ({ id: u.id, name: u.name, phone: u.phone, email: u.email, createdAt: u.createdAt });
+const publicUser = (u) => ({ id: u.id, name: u.name, phone: u.phone, email: u.email, username: u.username || null, photo: u.photo || null, pinResetPending: !!u.pendingPin, createdAt: u.createdAt });
 
 // Password attempts are limited like PIN attempts (5 wrong tries -> 15 minutes)
 const pwFails = new Map();
@@ -67,6 +68,29 @@ router.post('/change-password', auth, L.wrap(async (req, res) => {
   pwFails.delete(req.userId);
   await prisma.user.update({ where: { id: req.userId }, data: { password: await bcrypt.hash(String(newPassword), 10) } });
   res.json({ message: 'Password changed' });
+}));
+
+// Used by the lock screen: is this the right PIN? (same lockout as payments)
+router.post('/verify-pin', auth, S.rateLimit({ windowMs: 60 * 1000, max: 15, key: (req) => req.userId }), L.wrap(async (req, res) => {
+  await L.verifyPin(req.userId, req.body?.pin);
+  res.json({ ok: true });
+}));
+
+// Profile picture: a small image (the app shrinks it first). null removes it.
+router.patch('/photo', auth, L.wrap(async (req, res) => {
+  const { photo } = req.body || {};
+  if (photo !== null && !(typeof photo === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(photo) && photo.length <= 100000)) {
+    throw new L.LedgerError('Choose a smaller picture (PNG or JPG)');
+  }
+  const updated = await prisma.user.update({ where: { id: req.userId }, data: { photo } });
+  res.json(publicUser(updated));
+}));
+
+// Who owns this username? (shown before you send money to @username)
+router.get('/lookup/:username', auth, L.wrap(async (req, res) => {
+  const u = await prisma.user.findUnique({ where: { username: String(req.params.username || '').replace(/^@/, '').toLowerCase() } });
+  if (!u) throw new L.LedgerError('No user with that username', 404);
+  res.json({ name: u.name, username: u.username, photo: u.photo || null });
 }));
 
 module.exports = router;

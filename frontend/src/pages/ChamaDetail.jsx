@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { useParams } from 'react-router-dom'
 import { Screen, Icon } from '../components/ui'
 import { useT } from '../i18n'
@@ -68,7 +69,7 @@ export default function ChamaDetail() {
       {action && (
         <form onSubmit={run} className="bg-white rounded-3xl border shadow-sm p-5 mt-4 space-y-3">
           <label className="block text-sm font-medium text-gray-700">{t('H-Pesa PIN')}</label>
-          <input type="password" inputMode="numeric" maxLength={4} placeholder="••••" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary" required autoFocus />
+          <PasswordInput inputMode="numeric" maxLength={4} placeholder="••••" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3.5 border rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary" required autoFocus />
           <div className="flex gap-2">
             <button type="button" onClick={() => { setAction(null); setPin('') }} className="flex-1 border rounded-2xl py-3">{t('Cancel')}</button>
             <button disabled={busy} className="flex-1 bg-primary disabled:opacity-60 text-white rounded-2xl py-3 font-semibold flex items-center justify-center gap-2"><Icon name="lock" size={18} />{t('Confirm')}</button>

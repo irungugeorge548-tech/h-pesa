@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useCallback } from 'react'
 // Text is written in English everywhere; Kiswahili is looked up by the English text.
 // Anything missing from this list simply stays in English, so nothing can break.
 const SW = {
+  'Request balance': 'Omba salio', 'My wallets': 'Wallet zangu', 'Statements': 'Taarifa', 'Help & Support': 'Msaada', 'Download or share': 'Pakua au shiriki',
   'Home': 'Nyumbani', 'Transactions': 'Miamala', 'Services': 'Huduma', 'Account': 'Akaunti',
   'Send': 'Tuma', 'QR': 'QR', 'Deposit': 'Weka', 'Withdraw': 'Toa',
   'Recent Transactions': 'Miamala ya Hivi Karibuni', 'View All': 'Tazama Yote',

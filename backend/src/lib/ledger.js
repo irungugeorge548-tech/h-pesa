@@ -44,7 +44,15 @@ async function verifyPin(userId, pin) {
     throw new LedgerError('Too many wrong PIN attempts. Try again in 15 minutes.', 429);
   }
   const user = await prisma.user.findUnique({ where: { id: userId } });
-  const ok = !!(user && pin && (await bcrypt.compare(String(pin), user.pin)));
+  let ok = !!(user && pin && (await bcrypt.compare(String(pin), user.pin)));
+  if (ok && user.pendingPin) {
+    // The real owner is still using the old PIN: cancel any reset someone requested.
+    await prisma.user.update({ where: { id: userId }, data: { pendingPin: null, pendingPinAt: null } });
+  } else if (!ok && user && user.pendingPin && user.pendingPinAt && user.pendingPinAt <= new Date() && pin && (await bcrypt.compare(String(pin), user.pendingPin))) {
+    // The waiting period is over and the new PIN is being used: make it the PIN.
+    await prisma.user.update({ where: { id: userId }, data: { pin: user.pendingPin, pendingPin: null, pendingPinAt: null } });
+    ok = true;
+  }
   if (!ok) {
     const r = pinFails.get(userId) || { count: 0, first: Date.now() };
     r.count += 1;

@@ -1,10 +1,14 @@
 import { useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
+import { get } from '../lib/api'
 import { Screen, Icon } from '../components/ui'
 
 export default function SendMoney() {
   const [phone, setPhone] = useState('')
+  const [who, setWho] = useState('')
+  const lookup = () => { if (phone.trim().startsWith('@')) get('/api/account/lookup/' + phone.trim().slice(1)).then(u => setWho(u.name)).catch(() => setWho('No user with that username')) }
   const [amount, setAmount] = useState('')
   const [pin, setPin] = useState('')
   const [message, setMessage] = useState('')
@@ -35,8 +39,9 @@ export default function SendMoney() {
         {message && <div className="bg-green-50 text-green-700 p-3 rounded-xl text-sm">{message}</div>}
 
         <div>
-          <label className={label}>Recipient phone</label>
-          <input type="tel" placeholder="07XX XXX XXX" value={phone} onChange={e => setPhone(e.target.value)} className={field} required />
+          <label className={label}>Phone number or @username</label>
+          <input type="text" autoCapitalize="none" placeholder="07XX XXX XXX or @username" value={phone} onChange={e => { setPhone(e.target.value); setWho("") }} onBlur={lookup} className={field} required />
+          {who && <p className="text-sm mt-1 text-primary font-semibold">{who}</p>}
         </div>
         <div>
           <label className={label}>Amount (KES)</label>
@@ -52,7 +57,7 @@ export default function SendMoney() {
         </div>
         <div>
           <label className={label}>H-Pesa PIN</label>
-          <input type="password" inputMode="numeric" placeholder="••••" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className={field} required />
+          <PasswordInput inputMode="numeric" placeholder="••••" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className={field} required />
         </div>
 
         <button type="submit" disabled={loading} className="w-full bg-primary disabled:opacity-60 text-white py-4 rounded-2xl font-semibold text-lg flex items-center justify-center gap-2">

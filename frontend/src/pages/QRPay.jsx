@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import axios from 'axios'
@@ -85,7 +86,7 @@ export default function QRPay() {
             {message && <div className="bg-green-100 text-green-700 p-3 rounded text-sm">{message}</div>}
             <p className="text-sm text-gray-600 text-center">Demo: Scanning QR of 0798765432</p>
             <input type="number" placeholder="Amount" value={amount} onChange={e => setAmount(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
-            <input type="password" placeholder="PIN" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
+            <PasswordInput placeholder="PIN" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
             <button type="submit" className="w-full bg-primary text-white py-3 rounded-xl font-semibold">Pay via QR</button>
           </form>
         )}

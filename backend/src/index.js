@@ -14,6 +14,8 @@ const requestRoutes = require('./routes/requests');
 const scheduledRoutes = require('./routes/scheduled');
 const rewardRoutes = require('./routes/rewards');
 const accountRoutes = require('./routes/account');
+const supportRoutes = require('./routes/support');
+const { securityHeaders } = require('./lib/security');
 const { runDue } = require('./lib/scheduler');
 
 const app = express();
@@ -24,8 +26,11 @@ const PORT = process.env.PORT || 5000;
 // header, so they are not affected.
 const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173')
   .split(',').map((o) => o.trim().replace(/\/$/, '')).filter(Boolean);
+app.set('trust proxy', 1); // behind Render's proxy, so rate limits see the real client address
+app.disable('x-powered-by');
+app.use(securityHeaders);
 app.use(cors({ origin: allowedOrigins }));
-app.use(express.json());
+app.use(express.json({ limit: '150kb' })); // room for a small profile picture
 
 app.use('/api/auth', authRoutes);
 app.use('/api/wallet', walletRoutes);
@@ -39,12 +44,14 @@ app.use('/api/requests', requestRoutes);
 app.use('/api/scheduled', scheduledRoutes);
 app.use('/api/rewards', rewardRoutes);
 app.use('/api/account', accountRoutes);
+app.use('/api/support', supportRoutes);
 
-app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'H-Pesa' }));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', app: 'H-Pesa', jwtSecretSet: !!process.env.JWT_SECRET }));
 
 module.exports = app;
 
 if (require.main === module) {
+  if (!process.env.JWT_SECRET) console.warn('WARNING: JWT_SECRET is not set. Set a long random value on Render before real users arrive.');
   app.listen(PORT, () => {
     console.log(`H-Pesa backend running on http://localhost:${PORT}`);
   });

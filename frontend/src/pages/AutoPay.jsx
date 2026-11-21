@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { Screen, Icon } from '../components/ui'
 import { useT } from '../i18n'
 import { get, post, del, errMsg } from '../lib/api'
@@ -63,7 +64,7 @@ export default function AutoPay() {
             <p className="text-sm text-gray-700 mb-1">{t('Starts on')}</p>
             <input className={field} type="datetime-local" value={startDate} onChange={e => setStartDate(e.target.value)} />
           </div>
-          <input className={field} type="password" inputMode="numeric" maxLength={4} placeholder={t('H-Pesa PIN')} value={pin} onChange={e => setPin(e.target.value)} required />
+          <PasswordInput className={field} inputMode="numeric" maxLength={4} placeholder={t('H-Pesa PIN')} value={pin} onChange={e => setPin(e.target.value)} required />
           <button disabled={busy} className="w-full bg-primary disabled:opacity-60 text-white py-3.5 rounded-2xl font-semibold flex items-center justify-center gap-2"><Icon name="lock" size={18} />{t('Confirm')}</button>
         </form>)}
 

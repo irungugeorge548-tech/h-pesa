@@ -1,26 +1,36 @@
 import { Link } from 'react-router-dom'
 import { Icon, TabBar } from '../components/ui'
 import { useT } from '../i18n'
+import { useEffect, useState } from 'react'
+import { Sticker, Avatar } from '../components/extras'
+import { bioSupported, bioEnabled, bioEnrol, bioDisable } from '../lib/device'
 
 export default function Account({ user, logout }) {
   const { t, lang, setLang } = useT()
   const rows = [
     { icon: 'user', title: 'Profile', sub: 'Name, phone and email', to: '/account/profile' },
     { icon: 'lock', title: 'PIN & Security', sub: 'Change your PIN', to: '/account/security' },
+    { icon: 'people', title: 'My wallets', sub: 'Up to 3 wallets on this phone', to: '/account/wallets' },
+    { icon: 'doc', title: 'Statements', sub: 'Download or share', to: '/account/statement' },
     { icon: 'grid', title: 'Other apps', sub: 'Open H-Fleet and more', to: '/account/apps' },
     { icon: 'bell', title: 'Notifications', sub: 'Alerts and receipts', to: '/account/notifications' },
+    { icon: 'phone', title: 'Help & Support', sub: 'Haraka guide and messages', to: '/support' },
   ]
+  const [canBio, setCanBio] = useState(false); const [bio, setBio] = useState(bioEnabled()); const [bioErr, setBioErr] = useState('')
+  useEffect(() => { bioSupported().then(setCanBio) }, [])
+  const toggleBio = async () => { setBioErr(''); if (bio) { bioDisable(); setBio(false) } else { try { await bioEnrol(user?.name); setBio(true) } catch { setBioErr('Could not turn on the fingerprint lock') } } }
   return (
     <div className="h-screen flex flex-col bg-white">
       <div className="flex-1 overflow-y-auto px-5 pt-6">
         <h1 className="text-3xl font-extrabold">{t('Account')}</h1>
         <div className="flex items-center gap-4 mt-5">
-          <div className="w-20 h-20 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl font-bold">{(user?.name || '?')[0]}</div>
+          <Avatar user={user} size={80} />
           <div>
             <p className="text-2xl font-extrabold">{user?.name}</p>
             <p className="text-sm text-gray-500">{user?.phone}</p>
           </div>
         </div>
+        <div className="mt-4"><Sticker user={user} compact /></div>
         <div className="mt-6 space-y-3">
           {rows.map(r => (
             <Link key={r.title} to={r.to} className="flex items-center gap-4 border rounded-2xl p-4 shadow-sm">
@@ -37,13 +47,19 @@ export default function Account({ user, logout }) {
                 <button key={v} onClick={() => setLang(v)} className={`px-3 py-1.5 ${lang === v ? 'bg-primary text-white' : 'text-gray-600'}`}>{l}</button>))}
             </div>
           </div>
+          {canBio && <div className="flex items-center gap-4 border rounded-2xl p-4 shadow-sm">
+            <span className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Icon name="shield" size={22} /></span>
+            <div className="flex-1"><p className="font-semibold">Fingerprint lock</p><p className="text-xs text-gray-500">{bioErr || 'Unlock the app with your fingerprint'}</p></div>
+            <button onClick={toggleBio} className={`px-4 py-1.5 rounded-full text-sm font-semibold ${bio ? 'bg-primary text-white' : 'border text-gray-600'}`}>{bio ? 'On' : 'Off'}</button>
+          </div>}
           <Link to="/rewards" className="flex items-center gap-4 border rounded-2xl p-4 shadow-sm">
             <span className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center"><Icon name="gift" size={22} /></span>
             <p className="flex-1 font-semibold">{t('Rewards')}</p>
             <Icon name="chev" size={18} className="text-gray-400" />
           </Link>
         </div>
-        <button onClick={logout} className="w-full mt-6 mb-6 border border-red-200 text-red-600 py-3 rounded-2xl font-semibold">{t('Log out')}</button>
+        <p className="text-center text-xs text-gray-500 mt-5"><Link to="/terms" className="underline">Terms of Use</Link> • <Link to="/privacy" className="underline">Privacy Policy</Link></p>
+        <button onClick={logout} className="w-full mt-3 mb-6 border border-red-200 text-red-600 py-3 rounded-2xl font-semibold">{t('Log out')}</button>
       </div>
       <TabBar />
     </div>

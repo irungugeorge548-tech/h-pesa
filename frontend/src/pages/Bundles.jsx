@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
@@ -62,7 +63,7 @@ export default function Bundles() {
             ))}
           </div>
 
-          <input type="password" placeholder="PIN" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
+          <PasswordInput placeholder="PIN" maxLength="4" value={pin} onChange={e => setPin(e.target.value)} className="w-full px-4 py-3 border rounded-xl" required />
           <button type="submit" disabled={loading} className="w-full bg-primary text-white py-3 rounded-xl font-semibold">
             {loading ? 'Processing...' : 'Buy Bundle'}
           </button>

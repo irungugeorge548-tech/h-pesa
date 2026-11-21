@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import axios from 'axios'
 import { Icon, TabBar, TxRow, GREEN_GRADIENT } from '../components/ui'
 import { useT } from '../i18n'
+import { Cheetah } from '../components/extras'
 
 const actions = [
   { to: '/send', label: 'Send', icon: 'send' },
@@ -15,7 +16,9 @@ export default function Dashboard({ user }) {
   const { t } = useT()
   const [balance, setBalance] = useState(null)
   const [transactions, setTransactions] = useState([])
-  const [hidden, setHidden] = useState(false)
+  const [revealed, setRevealed] = useState(false)
+  const hidden = !revealed
+  useEffect(() => { if (!revealed) return; const id = setTimeout(() => setRevealed(false), 8000); return () => clearTimeout(id) }, [revealed])
 
   useEffect(() => {
     const headers = { Authorization: `Bearer ${localStorage.getItem('hpesa_token')}` }
@@ -30,9 +33,9 @@ export default function Dashboard({ user }) {
       <div className="flex-1 overflow-y-auto">
         <div className="text-white px-5 pt-5 pb-24" style={{ background: GREEN_GRADIENT }}>
           <div className="flex items-center justify-between">
-            <Icon name="menu" size={28} />
+            <Link to="/services" aria-label="Menu" className="p-2 -m-2"><Icon name="menu" size={28} /></Link>
             <div className="flex items-center gap-4">
-              <Icon name="bell" size={26} />
+              <Link to="/account/notifications" aria-label="Notifications" className="p-2 -m-2"><Icon name="bell" size={26} /></Link>
               <Link to="/account"><Icon name="user" size={28} /></Link>
             </div>
           </div>
@@ -42,25 +45,24 @@ export default function Dashboard({ user }) {
               <h1 className="text-3xl font-extrabold">{t('Hi')}, {firstName}</h1>
               <p className="text-white/80 text-sm mt-1">{t('Welcome back to H-Pesa')} 👋</p>
             </div>
-            <div className="w-20 h-16 rounded-2xl bg-white/15 border border-white/25 flex flex-col items-center justify-center text-xs font-bold gap-0.5">
-              <Icon name="wallet" size={24} />H-Pesa
-            </div>
+            <div className="w-20 h-20 rounded-2xl bg-white/90 flex items-center justify-center"><Cheetah size={64} /></div>
           </div>
 
           <div className="mt-5 rounded-3xl bg-white/10 border border-white/15 p-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm">
                 {t('Wallet Balance')}
-                <button onClick={() => setHidden(!hidden)} aria-label="Show or hide balance">
-                  <Icon name={hidden ? 'eyeoff' : 'eye'} size={20} />
-                </button>
+                <Icon name={hidden ? 'eyeoff' : 'eye'} size={20} />
               </div>
               <span className="text-xs bg-white/85 text-primary font-semibold rounded-full px-3 py-1">H-Pesa Wallet</span>
             </div>
             <p className="text-4xl font-extrabold mt-2">
               {hidden ? 'KES ••••••' : balance === null ? 'KES …' : `KES ${balance.toLocaleString()}`}
             </p>
-            <p className="text-sm text-white/80 mt-1">{t('Kenyan Shillings')}</p>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-sm text-white/80">{t('Kenyan Shillings')}</p>
+              {hidden && <button onClick={() => setRevealed(true)} className="text-xs bg-white text-primary font-semibold rounded-full px-3 py-1.5">{t('Request balance')}</button>}
+            </div>
           </div>
         </div>
 

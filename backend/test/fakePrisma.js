@@ -9,7 +9,7 @@ const now = () => new Date();
 
 const MODELS = {
   user: {
-    uniques: [['id'], ['phone'], ['email']],
+    uniques: [['id'], ['phone'], ['email'], ['username']],
     defaults: () => ({ id: cuid(), role: 'TENANT', createdAt: now(), updatedAt: now() }),
     rels: { wallet: { model: 'wallet', foreign: 'userId', many: false } },
   },
@@ -32,6 +32,8 @@ const MODELS = {
   },
   unit: { uniques: [['id']], defaults: () => ({ id: cuid(), status: 'VACANT', createdAt: now() }) },
   tenancy: { uniques: [['id'], ['unitId']], defaults: () => ({ id: cuid(), startDate: now(), dueDay: 5, createdAt: now() }) },
+  supportMessage: { uniques: [['id']], defaults: () => ({ id: cuid(), createdAt: now() }) },
+  auditLog: { uniques: [['id']], defaults: () => ({ id: cuid(), userId: null, ip: null, detail: null, createdAt: now() }) },
   product: { uniques: [['id']], defaults: () => ({ id: cuid(), description: null, image: null, stock: 100, createdAt: now() }) },
 };
 

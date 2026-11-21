@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PasswordInput } from '../components/extras'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
@@ -72,7 +73,7 @@ export default function HMart() {
               </div>
             ))}
             <p className="font-bold mt-2">Total: KES {total.toLocaleString()}</p>
-            <input type="password" placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-full mt-2 px-3 py-2 border rounded-xl" />
+            <PasswordInput placeholder="PIN" value={pin} onChange={e => setPin(e.target.value)} className="w-full mt-2 px-3 py-2 border rounded-xl" />
             <button onClick={checkout} className="w-full bg-primary text-white py-2 rounded-xl mt-2">Checkout with H-Pesa</button>
             {message && <p className="text-sm mt-2 text-green-600">{message}</p>}
           </div>
