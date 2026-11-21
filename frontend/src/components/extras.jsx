@@ -7,6 +7,8 @@ import { bioCheck, bioEnabled } from '../lib/device'
 // sweeps, bobs and shows speed streaks, like the car in H-Fleet.
 export function Cheetah({ size = 120, ride = false, className = '' }) {
   return (
+    const s = Math.min(size, 96)
+return <span style={{ width: s, height: s, background: '#0E7A47', border: '1px solid rgba(255,255,255,.4)' }} className="rounded-2xl flex items-center justify-center text-white flex-shrink-0"><Icon name="wallet" size={Math.round(s * 0.6)} /></span>
     <div className={`chee relative overflow-hidden rounded-2xl flex-shrink-0 ${className}`} style={{ width: size, height: Math.round(size * 0.75) }} role="img" aria-label="H-Pesa cheetah">
       <img src="/cheetah.jpg" alt="" draggable="false" className={`absolute inset-0 w-full h-full object-cover ${ride ? 'chee-pan' : ''}`} />
     </div>
